@@ -21,7 +21,7 @@ load_dotenv(BASE_DIR / ".env")
 # Core
 # -------------------------
 SECRET_KEY = os.getenv("SECRET_KEY", "dev-insecure-secret")  # ✅ use env in Render
-DEBUG = os.getenv("DEBUG", "False").lower() == "true"       # ✅ Render should be False
+DEBUG = os.getenv("DEBUG", "0") == "1"
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
 ALLOWED_HOSTS = [h.strip() for h in ALLOWED_HOSTS if h.strip()]
@@ -65,6 +65,20 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "https://ecommerce-frontend-x0xw.onrender.com",
+]
+
+# If you are using JWT in Authorization header, you DON'T need cookies,
+# but keep this safe:
+CORS_ALLOW_CREDENTIALS = False
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://ecommerce-frontend-x0xw.onrender.com",
+]
+
 
 ROOT_URLCONF = "config.urls"
 
@@ -102,27 +116,6 @@ DATABASES = {
     }
 }
 
-# -------------------------
-# CORS ✅ (this fixes your frontend issue)
-# -------------------------
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "http://localhost:3000",
-    "https://ecommerce-frontend-x0xw.onrender.com",
-]
-
-CORS_ALLOW_CREDENTIALS = True
-
-# Optional but helpful:
-CORS_ALLOW_HEADERS = [
-    "accept",
-    "authorization",
-    "content-type",
-    "origin",
-    "user-agent",
-    "x-csrftoken",
-    "x-requested-with",
-]
 
 # -------------------------
 # DRF / JWT
@@ -131,10 +124,6 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
-
-    # ✅ IMPORTANT:
-    # Don't force login for EVERYTHING (products/categories should be public)
-    # We'll protect cart/checkout endpoints with permissions in views instead.
     "DEFAULT_PERMISSION_CLASSES": (
         "rest_framework.permissions.AllowAny",
     ),
